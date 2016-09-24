@@ -19,7 +19,6 @@ func main() {
 	}
 
 	hostname := flag.Arg(0)
-	fmt.Println("Lookup", hostname)
 	dig(hostname)
 }
 
@@ -28,7 +27,10 @@ func dig(hostname string) {
 
 	if err != nil {
 		fmt.Println(err)
+		return
 	}
+
+	fmt.Printf("%d records found\n", len(records))
 
 	for _, record := range records {
 		fmt.Println(record)

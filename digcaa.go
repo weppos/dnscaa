@@ -1,25 +1,35 @@
 package main
 
 import (
+	"fmt"
+	"log"
+	"os"
 	"strings"
 	"sync"
 
 	"github.com/miekg/dns"
-	"fmt"
-	"os"
-	"log"
 )
 
 var client *dns.Client
 
 func main() {
+	hostname := os.Args[1]
 	client = new(dns.Client)
 
-	fmt.Println("Lookup", os.Args[1])
-	Lookup(os.Args[1])
+	fmt.Println("Lookup", hostname)
+	records, err := Lookup(hostname)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	for _, record := range records {
+		fmt.Println(record)
+	}
 }
 
-func Lookup(hostname string) {
+func Lookup(hostname string) ([]*dns.CAA, error) {
+	var records []*dns.CAA
 	labels := strings.Split(hostname, ".")
 
 	var wg sync.WaitGroup
@@ -53,12 +63,14 @@ func Lookup(hostname string) {
 	}()
 
 	for rr := range ch {
-		fmt.Println(rr)
+		records = append(records, rr)
 	}
+
+	return records, nil
 }
 
 func LookupCAA(name string) ([]*dns.CAA, error) {
-	var ccas []*dns.CAA
+	var rrs []*dns.CAA
 
 	msg := new(dns.Msg)
 	msg.SetQuestion(dns.Fqdn(name), dns.TypeCAA)
@@ -76,9 +88,9 @@ func LookupCAA(name string) ([]*dns.CAA, error) {
 
 	for _, rr := range rsp.Answer {
 		if cca, ok := rr.(*dns.CAA); ok {
-			ccas = append(ccas, cca)
+			rrs = append(rrs, cca)
 		}
 	}
 
-	return ccas, nil
+	return rrs, nil
 }

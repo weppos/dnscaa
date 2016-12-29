@@ -13,9 +13,8 @@ $ go build cmd/digcaa/digcaa.go
 #### Run
 
 ```
-$ ./digcaa
+$ ./digcaa www.comodo.com
 
-www.comodo.com
 2 records found
 comodo.com.	1199	IN	CAA	0 iodef "mailto:sslabuse@comodoca.com"
 comodo.com.	1199	IN	CAA	0 issue "comodoca.com"

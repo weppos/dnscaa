@@ -1,6 +1,6 @@
 # dnscaa - CAA DNS Library for Go
 
-The _dnscaa_ package provides a library (not yet) and command-line tool to fetch the DNS CAA (Certification Authority Authorization) records for an hostname.
+The _dnscaa_ package provides a library (not yet) and command-line tool to fetch the DNS CAA (Certification Authority Authorization) records for a hostname.
 
 ## CLI usage
 

@@ -7,6 +7,7 @@ The _dnscaa_ package provides a library (not yet) and command-line tool to fetch
 #### Compile
 
 ```
+$ go get github.com/weppos/dnscaa
 $ go build cmd/digcaa/digcaa.go
 ```
 

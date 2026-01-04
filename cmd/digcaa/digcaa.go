@@ -23,7 +23,7 @@ func main() {
 }
 
 func dig(hostname string) {
-	records, err := dnscaa.Lookup(hostname)
+	records, err := digcaa.Lookup(hostname)
 
 	if err != nil {
 		fmt.Println(err)

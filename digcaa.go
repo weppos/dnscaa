@@ -1,4 +1,4 @@
-package dnscaa
+package digcaa
 
 import (
 	"fmt"
@@ -85,7 +85,7 @@ func (r *Resolver) Lookup(hostname string) ([]*dns.CAA, error) {
 	return records, nil
 }
 
-// LookupCAA performs a DNS query to lookup all the CAA records for the given hostname,
+// LookupCAA performs a DNS query to lookup the CAA records for the given hostname,
 // and returns the array of records.
 func (r *Resolver) LookupCAA(name string) ([]*dns.CAA, error) {
 	var rrs []*dns.CAA

@@ -8,11 +8,22 @@ import (
 	"github.com/weppos/dnscaa"
 )
 
-func init() {
-	flag.Parse()
-}
-
 func main() {
+	// Custom usage banner
+	flag.Usage = func() {
+		fmt.Fprintf(os.Stderr, "digcaa - DNS CAA Lookup Tool\n\n")
+		fmt.Fprintf(os.Stderr, "Usage:\n\n")
+		fmt.Fprintf(os.Stderr, "  digcaa <hostname>\n\n")
+		fmt.Fprintf(os.Stderr, "Description:\n\n")
+		fmt.Fprintf(os.Stderr, "  Fetch DNS CAA (Certification Authority Authorization) records for a hostname.\n")
+		fmt.Fprintf(os.Stderr, "  The tool walks the hostname up to the root and collects all CAA records.\n\n")
+		fmt.Fprintf(os.Stderr, "Examples:\n\n")
+		fmt.Fprintf(os.Stderr, "  digcaa example.com\n")
+		fmt.Fprintf(os.Stderr, "  digcaa www.example.com\n")
+	}
+
+	flag.Parse()
+
 	if flag.NArg() < 1 {
 		flag.Usage()
 		os.Exit(2)

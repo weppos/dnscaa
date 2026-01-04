@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/weppos/dnscaa"
+	"github.com/weppos/digcaa"
 )
 
 func main() {

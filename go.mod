@@ -1,4 +1,4 @@
-module github.com/weppos/dnscaa
+module github.com/weppos/digcaa
 
 go 1.25.4
 

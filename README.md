@@ -5,14 +5,14 @@ A command-line tool and Go library to fetch DNS CAA (Certification Authority Aut
 ## CLI Installation
 
 ```shell
-go install github.com/weppos/dnscaa/cmd/digcaa@latest
+go install github.com/weppos/digcaa/cmd/digcaa@latest
 ```
 
 or build from source:
 
 ```shell
-git clone https://github.com/weppos/dnscaa.git
-cd dnscaa
+git clone https://github.com/weppos/digcaa.git
+cd digcaa
 make build
 ```
 
@@ -39,7 +39,7 @@ digcaa www.comodo.com
 Install the library:
 
 ```shell
-go get github.com/weppos/dnscaa
+go get github.com/weppos/digcaa
 ```
 
 Use it in your Go code:
@@ -51,7 +51,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/weppos/dnscaa"
+	"github.com/weppos/digcaa"
 )
 
 func main() {

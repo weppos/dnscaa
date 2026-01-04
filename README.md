@@ -66,3 +66,7 @@ func main() {
 	}
 }
 ```
+
+## License
+
+[MIT License](LICENSE.txt).

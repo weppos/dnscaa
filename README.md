@@ -37,6 +37,21 @@ digcaa www.dnsimple.com
 # [...]
 ```
 
+### Timeout Configuration
+
+Configure DNS query timeout using the `--timeout` flag (default: 5s):
+
+```shell
+# Use a 10 second timeout
+digcaa --timeout 10s example.com
+
+# Use a 10 millisecond timeout
+digcaa --timeout 10ms example.com
+
+# Use a 1 minute timeout
+digcaa --timeout 1m example.com
+```
+
 ## Library Usage
 
 Install the library:

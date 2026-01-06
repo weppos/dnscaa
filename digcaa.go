@@ -4,8 +4,14 @@ import (
 	"fmt"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/miekg/dns"
+)
+
+const (
+	// DefaultTimeout is the default timeout for DNS queries.
+	DefaultTimeout = 5 * time.Second
 )
 
 var defaultResolver = NewResolver()
@@ -13,13 +19,29 @@ var defaultResolver = NewResolver()
 // Resolver represents a DNS resolver that can be used to lookup the CAA records.
 type Resolver struct {
 	dnsClient *dns.Client
+	timeout   time.Duration
 }
 
-// NewResolver constructs a new DNS resolver with an underlying DNS client.
+// NewResolver constructs a new DNS resolver with an underlying DNS client
+// configured with the default timeout.
 func NewResolver() *Resolver {
+	return NewResolverWithTimeout(DefaultTimeout)
+}
+
+// NewResolverWithTimeout constructs a new DNS resolver with an underlying DNS client
+// configured with the specified timeout.
+func NewResolverWithTimeout(timeout time.Duration) *Resolver {
 	r := new(Resolver)
-	r.dnsClient = &dns.Client{}
+	r.timeout = timeout
+	r.dnsClient = &dns.Client{
+		Timeout: timeout,
+	}
 	return r
+}
+
+// Timeout returns the configured timeout for DNS queries.
+func (r *Resolver) Timeout() time.Duration {
+	return r.timeout
 }
 
 // Lookup performs a DNS CAA lookup for the hostname using the default Resolver.
@@ -102,7 +124,8 @@ func (r *Resolver) Lookup(hostname string) ([]*dns.CAA, error) {
 }
 
 // LookupCAA performs a DNS query to lookup the CAA records for the given hostname,
-// and returns the array of records.
+// and returns the array of records. The query will timeout according to the configured
+// timeout duration (default: 5 seconds).
 func (r *Resolver) LookupCAA(name string) ([]*dns.CAA, error) {
 	var rrs []*dns.CAA
 

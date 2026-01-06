@@ -27,11 +27,14 @@ digcaa <hostname>
 Lookup CAA records for a domain:
 
 ```shell
-digcaa www.comodo.com
+digcaa www.dnsimple.com
 
-# 2 records found
-# comodo.com.	1199	IN	CAA	0 iodef "mailto:sslabuse@comodoca.com"
-# comodo.com.	1199	IN	CAA	0 issue "comodoca.com"
+# 10 records found
+# dnsimple.com.   3600    IN      CAA     0 issue "amazon.com"
+# dnsimple.com.   3600    IN      CAA     0 issue "letsencrypt.org"
+# dnsimple.com.   3600    IN      CAA     0 issuewild "sectigo.com"
+# dnsimple.com.   3600    IN      CAA     0 iodef "mailto:ops@dnsimple.com"
+# [...]
 ```
 
 ## Library Usage

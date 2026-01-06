@@ -12,6 +12,7 @@ import (
 func main() {
 	// Define flags
 	timeout := flag.Duration("timeout", digcaa.DefaultTimeout, "Timeout for DNS queries (e.g., 5s, 10s, 1m)")
+	resolver := flag.String("resolver", digcaa.DefaultResolver, "DNS resolver address (e.g., 8.8.8.8:53, 1.1.1.1:53)")
 
 	// Custom usage banner
 	flag.Usage = func() {
@@ -27,6 +28,8 @@ func main() {
 		fmt.Fprintf(os.Stderr, "  digcaa example.com\n")
 		fmt.Fprintf(os.Stderr, "  digcaa www.example.com\n")
 		fmt.Fprintf(os.Stderr, "  digcaa --timeout 10s example.com\n")
+		fmt.Fprintf(os.Stderr, "  digcaa --resolver 1.1.1.1:53 example.com\n")
+		fmt.Fprintf(os.Stderr, "  digcaa --timeout 10s --resolver 1.1.1.1:53 example.com\n")
 	}
 
 	flag.Parse()
@@ -37,11 +40,15 @@ func main() {
 	}
 
 	hostname := flag.Arg(0)
-	dig(hostname, *timeout)
+	dig(hostname, *timeout, *resolver)
 }
 
-func dig(hostname string, timeout time.Duration) {
-	resolver := digcaa.NewResolverWithTimeout(timeout)
+func dig(hostname string, timeout time.Duration, resolverAddr string) {
+	config := &digcaa.Config{
+		Timeout:  timeout,
+		Resolver: resolverAddr,
+	}
+	resolver := digcaa.NewResolverWithConfig(config)
 	records, err := resolver.Lookup(hostname)
 
 	if err != nil {

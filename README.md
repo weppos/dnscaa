@@ -37,9 +37,9 @@ digcaa www.dnsimple.com
 # [...]
 ```
 
-### Timeout Configuration
+### Configuration Options
 
-Configure DNS query timeout using the `--timeout` flag (default: 5s):
+Configure DNS query timeout and resolver:
 
 ```shell
 # Use a 10 second timeout
@@ -50,6 +50,12 @@ digcaa --timeout 10ms example.com
 
 # Use a 1 minute timeout
 digcaa --timeout 1m example.com
+
+# Use Cloudflare DNS resolver
+digcaa --resolver 1.1.1.1:53 example.com
+
+# Combine timeout and resolver
+digcaa --timeout 10s --resolver 1.1.1.1:53 example.com
 ```
 
 ## Library Usage
@@ -73,7 +79,43 @@ import (
 )
 
 func main() {
+	// Use default resolver and timeout
 	records, err := digcaa.Lookup("www.comodo.com")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Printf("%d records found\n", len(records))
+	for _, record := range records {
+		fmt.Println(record)
+	}
+}
+```
+
+### Custom Configuration
+
+Use custom timeout and resolver:
+
+```go
+package main
+
+import (
+	"fmt"
+	"log"
+	"time"
+
+	"github.com/weppos/digcaa"
+)
+
+func main() {
+	// Create a custom configuration
+	config := &digcaa.Config{
+		Timeout:  10 * time.Second,
+		Resolver: "1.1.1.1:53", // Cloudflare DNS
+	}
+
+	resolver := digcaa.NewResolverWithConfig(config)
+	records, err := resolver.Lookup("www.example.com")
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -12,29 +12,49 @@ import (
 const (
 	// DefaultTimeout is the default timeout for DNS queries.
 	DefaultTimeout = 5 * time.Second
+	// DefaultResolver is the default DNS resolver address.
+	DefaultResolver = "8.8.8.8:53"
 )
 
 var defaultResolver = NewResolver()
+
+// Config represents configuration options for a DNS resolver.
+type Config struct {
+	// Timeout is the timeout for DNS queries.
+	Timeout time.Duration
+	// Resolver is the DNS resolver address (e.g., "8.8.8.8:53").
+	Resolver string
+}
+
+// DefaultConfig returns a Config with default values.
+func DefaultConfig() *Config {
+	return &Config{
+		Timeout:  DefaultTimeout,
+		Resolver: DefaultResolver,
+	}
+}
 
 // Resolver represents a DNS resolver that can be used to lookup the CAA records.
 type Resolver struct {
 	dnsClient *dns.Client
 	timeout   time.Duration
+	resolver  string
 }
 
 // NewResolver constructs a new DNS resolver with an underlying DNS client
-// configured with the default timeout.
+// configured with the default timeout and resolver.
 func NewResolver() *Resolver {
-	return NewResolverWithTimeout(DefaultTimeout)
+	return NewResolverWithConfig(DefaultConfig())
 }
 
-// NewResolverWithTimeout constructs a new DNS resolver with an underlying DNS client
-// configured with the specified timeout.
-func NewResolverWithTimeout(timeout time.Duration) *Resolver {
+// NewResolverWithConfig constructs a new DNS resolver with an underlying DNS client
+// configured with the specified configuration.
+func NewResolverWithConfig(config *Config) *Resolver {
 	r := new(Resolver)
-	r.timeout = timeout
+	r.timeout = config.Timeout
+	r.resolver = config.Resolver
 	r.dnsClient = &dns.Client{
-		Timeout: timeout,
+		Timeout: config.Timeout,
 	}
 	return r
 }
@@ -42,6 +62,11 @@ func NewResolverWithTimeout(timeout time.Duration) *Resolver {
 // Timeout returns the configured timeout for DNS queries.
 func (r *Resolver) Timeout() time.Duration {
 	return r.timeout
+}
+
+// Resolver returns the configured DNS resolver address.
+func (r *Resolver) Resolver() string {
+	return r.resolver
 }
 
 // Lookup performs a DNS CAA lookup for the hostname using the default Resolver.
@@ -132,7 +157,7 @@ func (r *Resolver) LookupCAA(name string) ([]*dns.CAA, error) {
 	msg := new(dns.Msg)
 	msg.SetQuestion(dns.Fqdn(name), dns.TypeCAA)
 
-	rsp, _, err := r.dnsClient.Exchange(msg, "8.8.8.8:53")
+	rsp, _, err := r.dnsClient.Exchange(msg, r.resolver)
 	if err != nil {
 		return nil, fmt.Errorf("CAA lookup failed for %s: %w", name, err)
 	}

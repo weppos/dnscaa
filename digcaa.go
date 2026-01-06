@@ -2,7 +2,6 @@ package digcaa
 
 import (
 	"fmt"
-	"log"
 	"strings"
 	"sync"
 
@@ -44,17 +43,17 @@ func Lookup(hostname string) ([]*dns.CAA, error) {
 //
 // The DNS queries are executed in parallel to minimize the execution time. Lookup() returns
 // when all the DNS queries are completed.
+//
+// If any DNS query fails, the first error encountered is returned along with any successfully
+// retrieved records.
 func (r *Resolver) Lookup(hostname string) ([]*dns.CAA, error) {
 	var records []*dns.CAA
 	labels := strings.Split(hostname, ".")
 
 	var wg sync.WaitGroup
-	ch := make(chan *dns.CAA, 1)
+	ch := make(chan *dns.CAA)
+	errCh := make(chan error, len(labels))
 
-	// Current issues:
-	// - no error checking
-	// - it should probably quit on first error
-	// See https://blog.golang.org/pipelines (select + range)
 	for i := range labels {
 		wg.Add(1)
 		go func(name string) {
@@ -62,12 +61,11 @@ func (r *Resolver) Lookup(hostname string) ([]*dns.CAA, error) {
 
 			caas, err := r.LookupCAA(name)
 			if err != nil {
-				fmt.Println(err)
+				errCh <- err
 				return
 			}
 
 			for _, caa := range caas {
-				caa := caa
 				ch <- caa
 			}
 		}(strings.Join(labels[i:], "."))
@@ -76,10 +74,28 @@ func (r *Resolver) Lookup(hostname string) ([]*dns.CAA, error) {
 	go func() {
 		wg.Wait()
 		close(ch)
+		close(errCh)
+	}()
+
+	// Collect errors in a separate goroutine
+	var errs []error
+	done := make(chan struct{})
+	go func() {
+		for err := range errCh {
+			errs = append(errs, err)
+		}
+		close(done)
 	}()
 
 	for rr := range ch {
 		records = append(records, rr)
+	}
+
+	// Wait for error collection to complete
+	<-done
+
+	if len(errs) > 0 {
+		return records, errs[0]
 	}
 
 	return records, nil
@@ -95,13 +111,11 @@ func (r *Resolver) LookupCAA(name string) ([]*dns.CAA, error) {
 
 	rsp, _, err := r.dnsClient.Exchange(msg, "8.8.8.8:53")
 	if err != nil {
-		log.Println("CAA lookup failed", name, err)
-		return nil, err
+		return nil, fmt.Errorf("CAA lookup failed for %s: %w", name, err)
 	}
 
 	if rsp.Rcode != dns.RcodeSuccess {
-		log.Println("CAA lookup not success", name, dns.RcodeToString[rsp.Rcode])
-		return nil, fmt.Errorf("lookup code %s", dns.RcodeToString[rsp.Rcode])
+		return nil, fmt.Errorf("CAA lookup for %s returned %s", name, dns.RcodeToString[rsp.Rcode])
 	}
 
 	for _, rr := range rsp.Answer {

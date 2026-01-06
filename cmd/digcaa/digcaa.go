@@ -37,8 +37,8 @@ func dig(hostname string) {
 	records, err := digcaa.Lookup(hostname)
 
 	if err != nil {
-		fmt.Println(err)
-		return
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
 	}
 
 	fmt.Printf("%d records found\n", len(records))

@@ -58,7 +58,14 @@ func dig(hostname string, timeout time.Duration, resolverAddr string) {
 
 	fmt.Printf("%d records found\n", len(results))
 
+	maxQueryLen := 0
 	for _, result := range results {
-		fmt.Printf("%s: %s\n", result.Query, result.Record)
+		if len(result.Query) > maxQueryLen {
+			maxQueryLen = len(result.Query)
+		}
+	}
+
+	for _, result := range results {
+		fmt.Printf("%*s: %s\n", maxQueryLen, result.Query, result.Record)
 	}
 }

@@ -49,16 +49,16 @@ func dig(hostname string, timeout time.Duration, resolverAddr string) {
 		Resolver: resolverAddr,
 	}
 	resolver := digcaa.NewResolverWithConfig(config)
-	records, err := resolver.Lookup(hostname)
+	results, err := resolver.LookupWithQuery(hostname)
 
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
 	}
 
-	fmt.Printf("%d records found\n", len(records))
+	fmt.Printf("%d records found\n", len(results))
 
-	for _, record := range records {
-		fmt.Println(record)
+	for _, result := range results {
+		fmt.Printf("%s: %s\n", result.Query, result.Record)
 	}
 }

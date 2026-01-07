@@ -94,26 +94,45 @@ func Lookup(hostname string) ([]*dns.CAA, error) {
 // If any DNS query fails, the first error encountered is returned along with any successfully
 // retrieved records.
 func (r *Resolver) Lookup(hostname string) ([]*dns.CAA, error) {
-	var records []*dns.CAA
+	results, err := r.LookupWithQuery(hostname)
+	records := make([]*dns.CAA, 0, len(results))
+	for _, result := range results {
+		records = append(records, result.Record)
+	}
+	return records, err
+}
+
+// LookupResult represents a CAA record along with the hostname that was queried.
+type LookupResult struct {
+	Query  string
+	Record *dns.CAA
+}
+
+// LookupWithQuery performs a lookup of the CAA records for the hostname,
+// and returns results annotated with the query name.
+func (r *Resolver) LookupWithQuery(hostname string) ([]LookupResult, error) {
 	labels := strings.Split(hostname, ".")
 
 	var wg sync.WaitGroup
-	ch := make(chan *dns.CAA)
+	ch := make(chan LookupResult)
 	errCh := make(chan error, len(labels))
 
 	for i := range labels {
 		wg.Add(1)
-		go func(name string) {
+		go func(query string) {
 			defer wg.Done()
 
-			caas, err := r.LookupCAA(name)
+			caas, err := r.LookupCAA(query)
 			if err != nil {
 				errCh <- err
 				return
 			}
 
 			for _, caa := range caas {
-				ch <- caa
+				ch <- LookupResult{
+					Query:  query,
+					Record: caa,
+				}
 			}
 		}(strings.Join(labels[i:], "."))
 	}
@@ -134,18 +153,19 @@ func (r *Resolver) Lookup(hostname string) ([]*dns.CAA, error) {
 		close(done)
 	}()
 
-	for rr := range ch {
-		records = append(records, rr)
+	var results []LookupResult
+	for result := range ch {
+		results = append(results, result)
 	}
 
 	// Wait for error collection to complete
 	<-done
 
 	if len(errs) > 0 {
-		return records, errs[0]
+		return results, errs[0]
 	}
 
-	return records, nil
+	return results, nil
 }
 
 // LookupCAA performs a DNS query to lookup the CAA records for the given hostname,

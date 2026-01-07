@@ -30,10 +30,10 @@ Lookup CAA records for a domain:
 digcaa www.dnsimple.com
 
 # 10 records found
-# dnsimple.com.   3600    IN      CAA     0 issue "amazon.com"
-# dnsimple.com.   3600    IN      CAA     0 issue "letsencrypt.org"
-# dnsimple.com.   3600    IN      CAA     0 issuewild "sectigo.com"
-# dnsimple.com.   3600    IN      CAA     0 iodef "mailto:ops@dnsimple.com"
+# www.dnsimple.com : dnsimple.com.   3600    IN      CAA     0 issue "amazon.com"
+# www.dnsimple.com : dnsimple.com.   3600    IN      CAA     0 issue "letsencrypt.org"
+# www.dnsimple.com : dnsimple.com.   3600    IN      CAA     0 issuewild "sectigo.com"
+# www.dnsimple.com : dnsimple.com.   3600    IN      CAA     0 iodef "mailto:ops@dnsimple.com"
 # [...]
 ```
 

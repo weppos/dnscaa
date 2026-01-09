@@ -42,7 +42,7 @@ This document describes the steps to release a new version of digcaa.
 5. **Create a tag**
 
    ```shell
-   git tag v$VERSION
+   git tag -a v$VERSION -s -m "Release $VERSION"
    ```
 
 6. **Push the changes and tag**
